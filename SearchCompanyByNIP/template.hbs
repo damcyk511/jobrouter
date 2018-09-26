@@ -1,0 +1,126 @@
+<div class="jr-dashboard-container">
+
+<input type="text" id="searchFroCompanyButton" onchange="searchForCompany()" placeholder="Wprowadź nazwę, REGON, NIP lub KRS.." title="Wyszukaj firme">
+<ul class="jr-dashboard-list" id="mainCompanyList">
+	<center><img id = "bigImage" src = "https://cdn.icon-icons.com/icons2/906/PNG/512/search_icon-icons.com_69921.png"></center>
+</ul>
+
+</div>
+
+<script>
+	function loadLibs(){
+		
+		var script = document.createElement('script');
+		script.src = 'https://code.jquery.com/jquery-1.10.2.js';
+		script.defer = true;
+		script.type = 'text/javascript';
+		document.getElementsByTagName('head')[0].appendChild(script);
+	}
+	
+	function searchForCompany(){
+		document.getElementById('mainCompanyList').innerHTML = ''
+		var searchCompany = document.getElementById('searchFroCompanyButton').value;
+		
+		var jsonData = JSON.parse(Get('https://api-v3.mojepanstwo.pl/dane/krs_podmioty.json?conditions[q]=' + searchCompany));
+		var jsonDataLength = jsonData.Dataobject.length;
+		
+		var html;
+		
+		if(searchCompany.length != 0){
+			for(var i = 0; i <= jsonDataLength; i++){
+				if(jsonData.Dataobject[i]){
+				
+					var nazwaFirmy  = jsonData.Dataobject[i].data['krs_podmioty.nazwa'];
+					var formaPrawna = jsonData.Dataobject[i].data['krs_podmioty.forma_prawna_str'].toLowerCase();
+					formaPrawna = formaPrawna.charAt(0).toUpperCase() + formaPrawna.substr(1);
+					var ulicaLubMiejscowosc = jsonData.Dataobject[i].data['krs_podmioty.adres_ulica'];
+					if(jsonData.Dataobject[i].data['krs_podmioty.adres_ulica'].length == 0){
+						ulicaLubMiejscowosc = jsonData.Dataobject[i].data['krs_podmioty.adres_miejscowosc'];
+					}
+					var adres = ulicaLubMiejscowosc+ ' '+jsonData.Dataobject[i].data['krs_podmioty.adres_numer']+ ', '+jsonData.Dataobject[i].data['krs_podmioty.adres_kod_pocztowy']+ ' ' +jsonData.Dataobject[i].data['krs_podmioty.adres_poczta'];
+					var regon = jsonData.Dataobject[i].data['krs_podmioty.regon'];
+					var nip = jsonData.Dataobject[i].data['krs_podmioty.nip'];
+					var krs = jsonData.Dataobject[i].data['krs_podmioty.krs'];
+					
+					html = 
+						'<li id = "listItemCompany" class="jr-dashboard-list-item">'+
+							'<span id = "listElement" class="jr-dashboard-list-label">'+
+								'<b>'+nazwaFirmy+'</b>'+
+							'</span>' +
+							
+							'<span id = "listElement"class = "jr-dashboard-list-summary"><b><br/>'+
+								'<i class="fas fa-gavel fa-2x"></i>Forma prawna: </b>'+formaPrawna+
+							'</span>'+
+							
+							'<span id = "listElement" class = "jr-dashboard-list-summary"><b><br/>'+
+								'<i class="fas fa-home fa-2x"></i>Adres: </b>'+adres+
+							'</span>';
+					
+					if(regon != 0){	
+					html += '<span id = "listElement" class = "jr-dashboard-list-summary"><b><br/>'+
+								'<i class="fas fa-arrow-alt-circle-right fa-2x"></i>REGON: </b>'+regon+
+							'</span>';
+					}
+					
+					if(nip != 0){						
+					html += '<span id = "listElement" class = "jr-dashboard-list-summary"><b><br/>'+
+								'<i class="fas fa-arrow-alt-circle-right fa-2x"></i>NIP: </b>'+nip+
+							'</span>'
+					}
+					
+					if(krs != 0){	
+					html += '<span id = "listElement" class = "jr-dashboard-list-summary"><b><br/>'+
+								'<i class="fas fa-arrow-alt-circle-right fa-2x"></i>KRS: </b>'+krs+
+							'</span>'
+					}
+					
+					html += '</li>';
+					
+					document.getElementById('mainCompanyList').innerHTML += html; 
+				}
+			}
+		} else {
+			document.getElementById('mainCompanyList').innerHTML = '<center><img id = "bigImage" src = "https://cdn.icon-icons.com/icons2/906/PNG/512/search_icon-icons.com_69921.png"></center>';
+		}
+	}
+
+</script>
+<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js" integrity="sha384-kW+oWsYx3YpxvjtZjFXqazFpA7UP/MbiY4jvs+RWZo2+N94PFZ36T6TFkc9O3qoB" crossorigin="anonymous"></script>
+
+
+<style>
+	#searchFroCompanyButton {
+	  background-size: 25px;
+	  background-image: url('https://cdn.icon-icons.com/icons2/906/PNG/512/search_icon-icons.com_69921.png');
+	  background-position: 10px 10px;
+	  background-repeat: no-repeat;
+	  width: 100%;
+	  font-size: 16px;
+	  padding: 12px 20px 12px 40px;
+	  border: 1px solid #ddd;
+	  margin-bottom: 12px;
+	  border-top: 1px solid #ddd;
+	  border-bottom: 1px solid #ddd;
+	  border-left: 0px solid #ddd;
+	}
+	
+	#bigImage{
+		width: 35%;
+		margin-top: 15%;
+		filter: brightness(300%);
+	}
+	
+	.fa-2x {
+		font-size: 1.3em;
+		margin-right: 8px;
+		filter: brightness(450%);
+	}
+	
+	#listElement {
+		font-size: 1em;
+	}
+	
+	#listItemCompany{
+		font-size: 1.05em;
+	}
+</style>

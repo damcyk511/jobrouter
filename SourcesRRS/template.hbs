@@ -1,0 +1,123 @@
+<div class="jr-dashboard-container">
+
+	<ul class="jr-dashboard-list" id="rssList">
+	</ul>
+</div >
+
+<script>
+	getRSSData();
+	
+	function loadLibs(){
+		
+		var script = document.createElement('script');
+		script.src = 'https://code.jquery.com/jquery-1.10.2.js';
+		script.defer = true;
+		script.type = 'text/javascript';
+		document.getElementsByTagName('head')[0].appendChild(script);
+	}
+	
+	function getRSSData(){
+	
+		var rssSources = [];
+		rssSources[0] = "https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Fwww.polsatnews.pl%2Frss%2Fwszystkie.xml"
+		rssSources[1] = "https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Fwww.polsatsport.pl%2Frss%2Fwszystkie.xml"
+		console.log(rssSources)
+		
+		//console.log(rssData);
+		var html;
+		
+		for(var j = 0; j <= rssSources.length-1; j++){
+			console.log(rssSources[j]);
+			var rssData = JSON.parse(Get(rssSources[j]));
+			var rssDataLength = rssData.items.length-1;
+		
+			console.log(rssData)
+			for(var i = 0; i <= rssDataLength; i++){
+				html = 
+					'<a id = "aRss" href="'+rssData.items[i]['link']+'" target="_blank">'+
+						'<li id = "wiadomosciRSS" class="jr-dashboard-list-item">'+
+							'<span class = "jr-dashboard-list-summary">'+
+								'<table>'+
+									'<tr>'+
+										'<th>'+
+											'<center>'+
+												'<img id = "rssItemLogo" src = "'+rssData.items[i]['enclosure']['link']+'">'+
+											'</center>'+
+										'</th>'+
+										'<th>'+
+											'<div id = "rssSource">'+
+												rssData.feed['title']+' '+
+											'</div>'+
+											'<div id = "rssDate">'+
+												rssData.items[i]['pubDate'].substring(0, rssData.items[i]['pubDate'].length - 3)+'<br/>'+
+											'</div>'+
+											'<div id = "rssTitle">'+
+												rssData.items[i]['title']+'<br/><br/>'+
+											'</div>'+
+											'<div id = "rssDescription">'+
+												rssData.items[i]['description']+
+											'</div>'+
+										'</th>'+	
+									'</tr>'+
+								'</table>'+
+							'</span>'+			
+						'</li>'+
+					'</a>';
+				
+				document.getElementById('rssList').innerHTML += html; 
+			}
+		}
+	} 
+	
+	
+	  function Get(yourUrl){
+		var Httpreq = new XMLHttpRequest(); // a new request
+		Httpreq.open("GET",yourUrl,false);
+		Httpreq.send(null);
+		return Httpreq.responseText;          
+	}
+	
+</script>
+<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js" integrity="sha384-kW+oWsYx3YpxvjtZjFXqazFpA7UP/MbiY4jvs+RWZo2+N94PFZ36T6TFkc9O3qoB" crossorigin="anonymous"></script>
+
+<style>	
+	.fa-2x{
+		font-size: 1.3em;
+		margin-right: 8px;
+		filter: brightness(450%);
+	}
+	
+	#rssDescription{
+		font-size: 1em;
+		text-align: justify;
+	}
+	
+	#rssTitle{
+		font-size: 1.25em;
+	}
+	
+	#rssItemLogo{
+		width: 180px;
+		margin: 10px;
+		float: left;
+	}
+	
+	#wiadomosciRSS{
+		margin-right: 10px;
+		padding-bottom: 10px;
+		padding-top: 10px;
+	}
+	
+	#aRss{
+		text-decoration: none;
+	}
+	
+	#rssDate{
+		text-align: right;
+	}
+	#rssSource{
+		float: left;
+		margin-right: 80px
+	}
+
+</style>

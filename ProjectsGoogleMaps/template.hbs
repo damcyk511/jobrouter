@@ -1,0 +1,165 @@
+<div class="jr-dashboard-container">
+<div id="map"></div>
+
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBl85H7G5_IJruCxSWRluRD78mNEcHHYOI&callback=initMap">
+</script>
+<script>
+  var MapMarkersList = {};
+	
+  function initMap() {
+  
+	var dataFromDB = [];  //ok
+	
+	'{{#each items}}'
+		'{{#each .}}'
+			dataFromDB['{{@index}}'] = [];
+			dataFromDB['{{@index}}']['name'] = '{{name}}';
+			dataFromDB['{{@index}}']['ulica'] = '{{ulica}}';
+			dataFromDB['{{@index}}']['kod'] = '{{kod}}';
+			dataFromDB['{{@index}}']['miejscowosc'] = '{{miejscowosc}}';
+			dataFromDB['{{@index}}']['typ'] = '{{typ}}';
+			dataFromDB['{{@index}}']['czyjKlient'] = '{{czyjKlient}}';
+			dataFromDB['{{@index}}']['strona'] = '{{strona}}';
+			dataFromDB['{{@index}}']['logo'] = '{{logo}}';
+
+		'{{/each}}'
+	'{{/each}}'
+	
+	var dataFromDBLength = dataFromDB.length - 1;
+	console.log(dataFromDB)
+	
+	var map = new google.maps.Map(document.getElementById('map'), {
+	  zoom: 6,
+	  center: {lat: 52.0097052, lng: 19.9803288},
+	  mapTypeControl: false,
+	  streetViewControl: false
+	});
+
+		//icons
+		var jobrouter = 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
+        var partner = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+		var klient = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
+		
+		var mapMarkserLength = dataFromDBLength;
+		var mapMarkers = {};
+		var mapMarkersList = {};
+
+		var infowindow = new google.maps.InfoWindow();
+		
+		for (var i = 0; i <= mapMarkserLength; i++){
+		    
+		    var name = dataFromDB[i]['name'];
+    		var ulica = dataFromDB[i]['ulica'];
+    		var kod = dataFromDB[i]['kod'];
+    		var miejscowosc = dataFromDB[i]['miejscowosc'];
+    		var typ = dataFromDB[i]['typ'];
+    		var czyjKlient = dataFromDB[i]['czyjKlient'];
+    		var strona = dataFromDB[i]['strona'];
+    		var logo = dataFromDB[i]['logo'];
+        	//var latitude = Number(jr_get_table_value('projektyTB', i, 'latitude'));
+    		//var longitude = Number(jr_get_table_value('projektyTB', i, 'longitude'));
+    		
+    		var googleJSONdata = JSON.parse(Get('https://maps.googleapis.com/maps/api/geocode/json?address='+ulica+'-'+kod+'-'+miejscowosc+'&key=AIzaSyBl85H7G5_IJruCxSWRluRD78mNEcHHYOI'));
+    		var latitude = googleJSONdata.results[0].geometry.location.lat
+    		var longitude = googleJSONdata.results[0].geometry.location.lng
+    		
+    		
+    		mapMarkers[i] = {};
+    		mapMarkers[i]['name'] = name;
+    		mapMarkers[i]['ulica'] = ulica;
+    		mapMarkers[i]['kod'] = kod;
+    		mapMarkers[i]['miejscowosc'] = miejscowosc;
+    		mapMarkers[i]['typ'] = typ;
+    		mapMarkers[i]['czyjKlient'] = czyjKlient;
+    		mapMarkers[i]['strona'] = strona;
+    		mapMarkers[i]['logo'] = logo;
+    		mapMarkers[i]['position'] = {};
+    		mapMarkers[i]['position']['latitude'] = latitude;
+    		mapMarkers[i]['position']['longitude'] = longitude;
+    		
+    		//console.log(JSON.stringify(mapMarkers));
+		
+			if(mapMarkers[i].typ == "JobRouter"){
+				mapMarkerIcon = jobrouter;
+			} else if (mapMarkers[i].typ == "Partner"){
+				mapMarkerIcon = partner;
+			} else {
+				mapMarkerIcon = klient;
+			}
+		
+			var marker = new google.maps.Marker({
+			  position: {lat: mapMarkers[i].position.latitude, lng: mapMarkers[i].position.longitude},
+			  map: map,
+			  icon: mapMarkerIcon,
+			  title: mapMarkers[i].name,
+			});
+
+		
+			google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                return function () {
+                    infowindow.setContent(
+					'<html>'+
+						'<div id="content" style="width: 250; margin-right:40px; margin-top: 10px">'+
+							'<div id="bodyContent">'+///www, partner, telefon
+								'<table style="border-spacing: 5px; border-collapse: separate; text-align: left; padding-top: 20px; padding-bottom: 15px">'+
+									'<tr style="padding-bottom: 20px">'+
+										'<th style="padding-bottom: 20px"></th>'+
+										'<td style="padding-bottom: 20px"><img src="'+mapMarkers[i].logo+'" width="200"></td>'+
+									'</tr >'+
+									'<tr style="padding-bottom: 20px">'+
+										'<th style="padding-bottom: 20px">Nazwa:</th>'+
+										'<td style="padding-bottom: 20px">'+mapMarkers[i].name+'</td>'+
+									'</tr >'+
+									'<tr>'+
+										'<th style="padding-bottom: 20px">Adres:</th>'+
+										'<td style="padding-bottom: 20px">ul. '+mapMarkers[i].ulica+'<br/>'+mapMarkers[i].kod+' '+mapMarkers[i].miejscowosc+'</td>'+
+									'</tr>'+
+									'<tr>'+
+										'<th style="padding-bottom: 20px">Typ:</th>'+
+										'<td style="padding-bottom: 20px">'+mapMarkers[i].typ+' '+mapMarkers[i].czyjKlient+'</td>'+
+									'</tr>'+
+									'<tr>'+
+										'<th style="padding-bottom: 20px"></th>'+
+										'<td style="padding-bottom: 20px"><a target="_blank" href="'+mapMarkers[i].strona+'">Strona internetowa</a></td>'+
+									'</tr>'+
+
+								'</table>'+
+							'</div>'+
+						'</div>'+
+					'</html>'
+					);
+                    infowindow.open(map, marker);
+                };
+            })(marker, i)); 
+            MapMarkersList[mapMarkers[i].name] = marker;
+		}
+      }
+      
+      function triggerMarker(marker){
+            google.maps.event.trigger(MapMarkersList[marker],'click');   
+      }
+      
+      
+      function Get(yourUrl){
+            var Httpreq = new XMLHttpRequest(); // a new request
+            Httpreq.open("GET",yourUrl,false);
+            Httpreq.send(null);
+            return Httpreq.responseText;          
+        }
+</script>
+
+	
+<style>
+  /* Always set the map height explicitly to define the size of the div
+   * element that contains the map. */
+  #map {
+	height: 478px;
+  }
+  /* Optional: Makes the sample page fill the window. */
+  html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+  }
+</style>

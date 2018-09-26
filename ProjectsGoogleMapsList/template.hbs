@@ -1,0 +1,100 @@
+<div class="jr-dashboard-container">
+
+<input type="text" id="searchFroProjects" onkeyup="searchProject()" placeholder="Wyszukaj klienta lub partnera.." title="Wprowadź nazwę">
+<ul class="jr-dashboard-list" id="mainProjectList">
+{{#each items}}{{#each .}}
+
+    <li onClick="triggerMarker('{{name}}')" id = "projectList-{{@index}}" class="jr-dashboard-list-item">
+			<div id = "data">
+				<span class="jr-dashboard-list-value">
+					<center><img id = "projectLogo" src = "{{logo}}"></center>
+				</span>
+			<div id = "data">
+			<div>
+				<span class = "jr-dashboard-list-label">
+					<b>{{name}}</b><br/>
+				</span>
+				
+				<span class = "jr-dashboard-list-summary">
+					<b>Typ: </b>{{typ}} {{czyjKlient}}<br/>
+				</span>
+				
+				<span class = "jr-dashboard-list-summary">
+					<b>Adres: </b>{{ulica}}, {{kod}} {{miejscowosc}}<br/>
+				</span>
+
+				<span class = "jr-dashboard-list-summary">
+					<a target="_blank" href="{{strona}}">Strona internetowa</a>
+				</span>
+			</div>
+    </li>
+		{{/each}}{{/each}}
+</ul>
+
+</div>
+
+<script>
+
+function searchProject(){
+//document.getElementById('mainProjectList').getElementsByClassName('jr-dashboard-list-item')[0].getElementsByTagName('div')[0].getElementsByClassName('jr-dashboard-list-label')[0].innerHTML
+	//var list = document.getElementsByClassName('jr-dashboard-list-label');
+	var mainList = document.getElementById('mainProjectList').getElementsByClassName('jr-dashboard-list-item');
+
+	var listLength = mainList.length - 1;
+	searchFor = document.getElementById('searchFroProjects').value;
+	searchFor = searchFor.toUpperCase();
+	
+	for (var i = 0; i<=listLength; i++){
+		var listElement = document.getElementById('mainProjectList').getElementsByClassName('jr-dashboard-list-item')[i].getElementsByTagName('div')[0].getElementsByClassName('jr-dashboard-list-label')[0].innerHTML;
+		if(listElement.toUpperCase().search(searchFor) >= 0){
+			mainList[i].style.display = "";
+		} else {
+			mainList[i].style.display = "none";
+		}
+	}
+}
+
+</script>
+
+<style>
+#projectLogo{
+    max-height: 60px;
+    min-height: 20px;
+    max-width: 100px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+.jr-dashboard-list-value{
+    display: inline-block;
+    float: left;
+    width: 120px;
+    height: 80px;
+    position: relative;
+	margin-right: 10px;
+}
+
+#data{
+	display: table-cell;
+}
+
+#searchFroProjects {
+  background-size: 25px;
+  background-image: url('https://cdn.icon-icons.com/icons2/906/PNG/512/search_icon-icons.com_69921.png');
+  background-position: 10px 10px;
+  background-repeat: no-repeat;
+  width: 100%;
+  font-size: 16px;
+  padding: 12px 20px 12px 40px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  border-left: 0px solid #ddd;
+}
+
+</style>
